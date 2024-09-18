@@ -5,13 +5,14 @@ const state = {
     evenNumbers: [],
     errorNumbers: []
 }
-
-// Move the numbers to the even or odd array.
+function addToBank(num) {
+    state.numbers.push(num)
+}
 
 function moveNumber() {
     const number = state.numbers.pop();
 
-    if(number === 0 || number === NaN) {
+    if(number === 0 || isNaN(number)) {
         state.errorNumbers.push(number)
     }
     else if(number % 2 === 0) {
@@ -20,14 +21,12 @@ function moveNumber() {
     else {
         state.oddNumbers.push(number)
     }
-
-    renderInitialNumbers();
 }
 
 function moveAllNumbers() {
     while(state.numbers.length > 0) {
         const number = state.numbers.pop()
-        if(number === 0 || number === !NaN) {
+        if(number === 0 || isNaN(number)) {
             state.errorNumbers.push(number)
         }
         else if(number % 2 === 0) {
@@ -37,14 +36,8 @@ function moveAllNumbers() {
             state.oddNumbers.push(number)
            }
     }
-
-    renderInitialNumbers();
 }
 
-function moveInputNumberToBank() {
-    const numbersBank = document.querySelector('#numberBank output');
-    numbersBank.textContent = state.numbers.join(', ');
-}
 
 function generateRandomNum(){
     const randomNumber = Math.floor(Math.random() * 101);
@@ -53,56 +46,68 @@ function generateRandomNum(){
 
 // === Render ===
 
-function renderInitialNumbers() {
-    const evenNumbersOutput = document.querySelector('#evens output')
-    evenNumbersOutput.textContent = state.evenNumbers.join(' ');
-
-    const oddNumbersOutput = document.querySelector('#odds output')
-    oddNumbersOutput.textContent = state.oddNumbers.join(' ');
-}
-
-// function renderRandomNumbers() {
- 
-// }
-
-function renderBankNumbers() {
-    const form = document.querySelector("form");
-    form.addEventListener("submit", (event) => {
-       event.preventDefault();
-       const numberInput = document.querySelector("#number");
-       state.numbers.push(Number(numberInput.value));
-       moveInputNumberToBank();
-      });
-
-      const generate = document.querySelector('#randomNumber')
-      generate.addEventListener('click', () => {
-        const randomNumber = generateRandomNum();
-        state.numbers.push(randomNumber);
-        moveInputNumberToBank();
-      })
-  
-
-      const sortOne = document.querySelector('#sortOne')
-      sortOne.addEventListener('click', () => {
-          moveNumber()
-      });
-
-      const sortAll = document.querySelector('#sortAll')
-      sortAll.addEventListener('click', () => {
-        moveAllNumbers()
-      });
+function renderNumbers(numbers, sectionId) {
+    const $numbers = numbers.map((num) => {
+        const $number = document.createElement("span");
+        $number.textContent = num;
+        return $number;
+    })
+    const $output = document.querySelector(`#${sectionId} output`)
+    $output.replaceChildren(...$numbers)
 }
 
 
 // === Script ===
 
 function render(){
-    renderBankNumbers()
-    renderInitialNumbers()
+    renderNumbers(state.numbers, 'numberBank');
+    renderNumbers(state.oddNumbers, 'odds');
+    renderNumbers(state.evenNumbers, 'evens');
 }
 
+
 //Initial render
+render();
+
+    const form = document.querySelector("form");
+    form.addEventListener("submit", (event) => {
+       event.preventDefault();
+       const $numberInput = document.querySelector("#number");
+       const input = Number($numberInput.value);
+
+       if(input.length === 0 || isNaN(input)) {
+        console.error('You must input a number');
+        return;
+      }
+
+      addToBank(input)
+      render()
+    });
+
+const generate = document.querySelector('#randomNumber')
+generate.addEventListener('click', () => {
+  const randomNumber = generateRandomNum();
+  addToBank(randomNumber)
+  render()
+})
+
+  
+
+const sortOne = document.querySelector('#sortOne')
+sortOne.addEventListener('click', () => {
+    moveNumber()
+    render()
+});
+
+
+const sortAll = document.querySelector('#sortAll')
+sortAll.addEventListener('click', () => {
+    while(state.numbers.length > 0){  
+        moveAllNumbers()
+}
 render()
+});
+
 
 
 

@@ -10,6 +10,10 @@ output {
   border-radius: 3px;
 }
 
+span::after {
+  content: ', '
+}
+
 #randomNumber {
   padding: 1px
 }
